@@ -32,11 +32,16 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, cb) => {
-      // Allow requests with no origin (mobile apps, curl, Postman)
+      // Allow requests with no origin (mobile apps, curl, etc.)
       if (!origin) return cb(null, true);
-      // Allow any localhost origin dynamically
-      if (origin.startsWith("http://localhost:")) return cb(null, true);
-      if (allowedOrigins.some((o) => origin.startsWith(o))) return cb(null, true);
+      // Allow localhost and any Vercel deployment dynamically
+      if (
+        origin.startsWith("http://localhost:") || 
+        origin.endsWith(".vercel.app") || 
+        allowedOrigins.some(o => origin.startsWith(o))
+      ) {
+        return cb(null, true);
+      }
       cb(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,
